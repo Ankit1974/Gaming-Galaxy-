@@ -1,38 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, ActivityIndicator, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, FlatList, Image, ActivityIndicator, StyleSheet, TouchableOpacity, Linking, RefreshControl } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Share from 'react-native-share';
+import ViewShot from 'react-native-view-shot';
 
 const PAGE_SIZE = 1; // Number of items to fetch per page
 
 const BgmiMain = () => {
-    const [TrandingItems, setTrandingItems] = useState([]);
+    const [trandingItems, setTrandingItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastDoc, setLastDoc] = useState(null);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [itemToShare, setItemToShare] = useState(null);
+    const [screenshotUri, setScreenshotUri] = useState(null);
 
-    const fetchData = async (loadMore = false) => {
-        if (loadMore && loadingMore) return; // Prevent multiple fetches
-        if (!loadMore) setLoading(true); // Only set loading for initial load
+    // Use a single ref for all view shots
+    const screenshotViewShots = useRef({}); 
+
+    const fetchData = async (loadMore = false, refresh = false) => {
+        if (loadMore && loadingMore) return;
+        if (!loadMore && !refresh) setLoading(true);
 
         try {
-            console.log('Fetching data...', loadMore ? 'Loading more' : 'Initial load');
-            const trandingRef = firestore().collection("Bgmi").limit(PAGE_SIZE);
-            let query = trandingRef;
+            let trandingRef = firestore().collection("Bgmi").orderBy("Date", "desc").limit(PAGE_SIZE);
 
             if (loadMore && lastDoc) {
-                query = query.startAfter(lastDoc);
+                trandingRef = trandingRef.startAfter(lastDoc);
             }
 
-            const trandingSnapshot = await query.get();
-            console.log('Snapshot size:', trandingSnapshot.size);
+            const trandingSnapshot = await trandingRef.get();
 
             if (!trandingSnapshot.empty) {
                 const newItems = trandingSnapshot.docs.map(doc => {
                     const data = doc.data();
-                    console.log('Document data:', data);
                     return {
                         id: doc.id,
                         description: data.Description,
@@ -41,8 +45,6 @@ const BgmiMain = () => {
                         url: data.Url,
                     };
                 });
-
-                console.log('Fetched items:', newItems);
 
                 if (loadMore) {
                     setTrandingItems(prevItems => [...prevItems, ...newItems]);
@@ -53,17 +55,17 @@ const BgmiMain = () => {
                 setLastDoc(trandingSnapshot.docs[trandingSnapshot.docs.length - 1]);
 
                 if (trandingSnapshot.docs.length < PAGE_SIZE) {
-                    setHasMore(false); // No more items to fetch
+                    setHasMore(false);
                 }
             } else {
-                setHasMore(false); // No more items to fetch
+                setHasMore(false);
             }
         } catch (error) {
-            console.error('Error fetching data:', error);
             setError(error);
         } finally {
             setLoading(false);
             setLoadingMore(false);
+            setRefreshing(false);
         }
     };
 
@@ -75,20 +77,61 @@ const BgmiMain = () => {
         Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
     };
 
+    const handleShare = async (item) => {
+        try {
+            setItemToShare(item);
+
+            // Delay screenshot capture to ensure all content is rendered
+            setTimeout(async () => {
+                const viewShotRef = screenshotViewShots.current[item.id];
+                if (viewShotRef) {
+                    const uri = await viewShotRef.capture();
+                    setScreenshotUri(uri);
+
+                    const appLink = `https://play.google.com/store/apps/details?id=com.ggplus`;
+
+                    const shareOptions = {
+                        title: item.headLine,
+                        message: `Check it out in our app: ${appLink}`,
+                        url: uri,
+                    };
+
+                    await Share.open(shareOptions);
+                }
+            }, 500); // 500ms delay
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
+    };
+
     const renderProductItem = ({ item }) => {
         return (
             <View style={styles.card}>
-                <Image
-                    source={{ uri: item.imageUrl }}
-                    style={styles.cardImage}
-                    resizeMode="contain"
-                    onError={() => console.log(`Image failed to load for item: ${item.id}`)}
-                />
-                <Text style={styles.headline}>{item.headLine}</Text>
-                <Text style={styles.description}>{item.description}</Text>
-                <TouchableOpacity onPress={() => handleReadMore(item.url)}>
-                    <Text style={styles.readMore}>Source</Text>
-                </TouchableOpacity>
+                <ViewShot
+                    ref={(ref) => { screenshotViewShots.current[item.id] = ref; }}
+                    options={{ format: "jpg", quality: 0.9}}
+                    style={styles.viewShot}
+                >
+                    <View style={styles.imageContainer}>
+                        <Image
+                            source={{ uri: item.imageUrl }}
+                            style={styles.cardImage}
+                            resizeMode="cover"
+                            onError={() => console.log(`Image failed to load for item: ${item.id}`)}
+                        />
+                        <Text style={styles.tag}>GG+</Text>
+                    </View>
+                    <Text style={styles.headline}>{item.headLine}</Text>
+                    <Text style={styles.description}>{item.description}</Text>
+                    <View style={styles.actionsContainer}>
+                        <TouchableOpacity onPress={() => handleReadMore(item.url)}>
+                            <Text style={styles.readMore}>Source</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleShare(item)}>
+                            <Text style={styles.share}>Share</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ViewShot>
             </View>
         );
     };
@@ -111,7 +154,7 @@ const BgmiMain = () => {
 
     return (
         <FlatList
-            data={TrandingItems}
+            data={trandingItems}
             renderItem={renderProductItem}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.flatListContentContainer}
@@ -120,8 +163,18 @@ const BgmiMain = () => {
                     fetchData(true);
                 }
             }}
-            onEndReachedThreshold={0.5} // Trigger when scrolled 50% from the bottom
+            onEndReachedThreshold={0.5}
             ListFooterComponent={loadingMore && <ActivityIndicator size="small" color="#0000ff" />}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={() => {
+                        setRefreshing(true);
+                        setLastDoc(null);
+                        fetchData(false, true);
+                    }}
+                />
+            }
         />
     );
 };
@@ -131,17 +184,19 @@ const styles = StyleSheet.create({
         marginVertical: hp('1%'),
         backgroundColor: '#fff',
         elevation: 7,
-        width: wp('95%'),
-        minHeight: hp('30%'),
-        paddingBottom: hp('1%'),
-        borderRadius: wp('5%'),
+        width: wp('90%'),
+        borderRadius: wp('4%'),
         alignSelf: 'center',
+        overflow: 'hidden',
+    },
+    imageContainer: {
+        position: 'relative',
+        width: '100%',
+        height: hp('25%'),
     },
     cardImage: {
         width: '100%',
-        height: hp('25%'),
-        borderTopLeftRadius: wp('2%'),
-        borderTopRightRadius: wp('2%'),
+        height: '100%',
     },
     headline: {
         color: 'black',
@@ -150,14 +205,16 @@ const styles = StyleSheet.create({
         marginLeft: wp('3%'),
         marginTop: hp('1%'),
         flexShrink: 1,
+        zIndex: 1, // Ensure it's above other elements
     },
     description: {
         marginTop: hp('1%'),
-        color: 'gray',
+        color: '#666',
         fontSize: wp('4%'),
-        fontWeight: 'bold',
         marginHorizontal: wp('3%'),
         textAlign: 'left',
+        fontFamily: 'Roboto',
+        lineHeight: 26, // Increased line height
         flexShrink: 1,
     },
     readMore: {
@@ -165,8 +222,22 @@ const styles = StyleSheet.create({
         color: 'blue',
         fontSize: wp('4%'),
         fontWeight: 'bold',
+        textAlign: 'left',
+        marginRight: wp('3%'),
+        marginLeft: wp('3%')
+    },
+    share: {
+        marginTop: hp('1%'),
+        color: 'blue',
+        fontSize: wp('4%'),
+        fontWeight: 'bold',
         textAlign: 'right',
         marginRight: wp('3%'),
+    },
+    actionsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: hp('1%'),
     },
     loadingContainer: {
         flex: 1,
@@ -180,6 +251,20 @@ const styles = StyleSheet.create({
     },
     flatListContentContainer: {
         paddingBottom: hp('1%'),
+    },
+    tag: {
+        color: 'white',
+        backgroundColor: 'green',
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        borderRadius: 15,
+        position: 'absolute',
+        left: 12,
+        bottom: -12, // Position at the bottom of the image
+    },
+    viewShot: {
+        backgroundColor: '#fff', // Set a background color that you want
+        flex: 1,
     },
 });
 

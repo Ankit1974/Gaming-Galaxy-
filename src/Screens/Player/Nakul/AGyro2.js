@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const Ads = () => {
+const AGyro2 = () => {
     const [playerItems, setPlayerItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -20,14 +20,14 @@ const Ads = () => {
                     const subcollectionSnapshot = await subcollectionRef.get();
 
                     for (const subDoc of subcollectionSnapshot.docs) {
-                        const sensitivityRef = subDoc.ref.collection('Sensitivity').doc('WKTLLAeo31LXmfORkpSo');
+                        const sensitivityRef = subDoc.ref.collection('Sensitivity').doc('glAfTK63nmA3rl5eUTHA'); // Replace 'your_document_id_here' with the actual document ID
                         const sensitivityDoc = await sensitivityRef.get();
 
                         if (sensitivityDoc.exists) {
                             const sensitivityData = sensitivityDoc.data();
                             playerItems.push({
                                 id: subDoc.id,
-                                achievements: [sensitivityData],
+                                achievements: [sensitivityData], // Wrap data in array to match your original rendering logic
                             });
                         }
                     }
@@ -49,35 +49,23 @@ const Ads = () => {
             <View style={styles.achievementContainer}>
                 {item.achievements.map((achievement, index) => (
                     <View key={index} style={styles.achievementContent}>
-                        <Text style={styles.heading}>ADS SENSITIVITY SETTING</Text>
-                        <View style={styles.headerContainer}>
-                            <Text style={styles.topLeftText}>Free Look</Text>
-                            <Text style={styles.achievementHeading}>{achievement.Name}</Text>
-                        </View>
+                        <Text style={styles.heading}>ADS GYRO SENSITIVITY SETTING</Text>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.detailLabel}>Camera</Text>
-                            <Text style={styles.detailText}>{achievement.Camera}</Text>
-                        </View>
-                        <View style={styles.rowContainer}>
-                            <Text style={styles.detailLabel}>Tpp</Text>
-                            <Text style={styles.detailText}>{achievement.Tpp}</Text>
-                        </View>
-                        <View style={styles.rowContainer}>
-                            <Text style={styles.detailLabel}>Fpp</Text>
-                            <Text style={styles.detailText}>{achievement.Fpp}</Text>
+                            <Text style={styles.detailLabel}>Gyroscope</Text>
+                            <Text style={styles.detailText}>{achievement.Gyroscope}</Text>
                         </View>
                         <Text style={styles.topLeftText}>Camera Sensitivity</Text>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Tpp</Text>
-                            <Text style={styles.detailText}>{achievement.TppNoScope}</Text>
+                            <Text style={styles.detailText}>{achievement.TPP}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Fpp</Text>
-                            <Text style={styles.detailText}>{achievement.FppNoScope}</Text>
+                            <Text style={styles.detailText}>{achievement.FPP}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Red Dot/Holo</Text>
-                            <Text style={styles.detailText}>{achievement.RedDotHolo}</Text>
+                            <Text style={styles.detailText}>{achievement.REDDOT}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>2x</Text>
@@ -98,6 +86,10 @@ const Ads = () => {
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>8x</Text>
                             <Text style={styles.detailText}>{achievement.xxxxxxxx}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.detailLabel}>Seperate Setting</Text>
+                            <Text style={styles.detailText}>{achievement.Separate}</Text>
                         </View>
                     </View>
                 ))}
@@ -208,5 +200,4 @@ const styles = StyleSheet.create({
         borderRadius: wp('2%'),
     }
 });
-
-export default Ads;
+export default AGyro2;

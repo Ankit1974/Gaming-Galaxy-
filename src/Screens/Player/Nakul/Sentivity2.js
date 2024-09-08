@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Ads2 from './Ads2';
+import AGyro2 from './AGyro2';
+import Gyro2 from './Gyro2';
 
-const Ads = () => {
+const Sentivity2 = () => {
     const [playerItems, setPlayerItems] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -20,7 +23,7 @@ const Ads = () => {
                     const subcollectionSnapshot = await subcollectionRef.get();
 
                     for (const subDoc of subcollectionSnapshot.docs) {
-                        const sensitivityRef = subDoc.ref.collection('Sensitivity').doc('WKTLLAeo31LXmfORkpSo');
+                        const sensitivityRef = subDoc.ref.collection('Sensitivity').doc('d2vwjaXLpxaZu4WOeOt3');
                         const sensitivityDoc = await sensitivityRef.get();
 
                         if (sensitivityDoc.exists) {
@@ -49,10 +52,9 @@ const Ads = () => {
             <View style={styles.achievementContainer}>
                 {item.achievements.map((achievement, index) => (
                     <View key={index} style={styles.achievementContent}>
-                        <Text style={styles.heading}>ADS SENSITIVITY SETTING</Text>
+                        <Text style={styles.heading}>CAMERA SENSITIVITY SETTING</Text>
                         <View style={styles.headerContainer}>
                             <Text style={styles.topLeftText}>Free Look</Text>
-                            <Text style={styles.achievementHeading}>{achievement.Name}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Camera</Text>
@@ -60,24 +62,24 @@ const Ads = () => {
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Tpp</Text>
-                            <Text style={styles.detailText}>{achievement.Tpp}</Text>
+                            <Text style={styles.detailText}>{achievement.TPP}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Fpp</Text>
-                            <Text style={styles.detailText}>{achievement.Fpp}</Text>
+                            <Text style={styles.detailText}>{achievement.FPP}</Text>
                         </View>
                         <Text style={styles.topLeftText}>Camera Sensitivity</Text>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.detailLabel}>Tpp</Text>
-                            <Text style={styles.detailText}>{achievement.TppNoScope}</Text>
+                            <Text style={styles.detailLabel}>Tpp No Scope</Text>
+                            <Text style={styles.detailText}>{achievement.TPPNO}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.detailLabel}>Fpp</Text>
-                            <Text style={styles.detailText}>{achievement.FppNoScope}</Text>
+                            <Text style={styles.detailLabel}>Fpp No Scope</Text>
+                            <Text style={styles.detailText}>{achievement.FPPNO}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Red Dot/Holo</Text>
-                            <Text style={styles.detailText}>{achievement.RedDotHolo}</Text>
+                            <Text style={styles.detailText}>{achievement.REDDOT}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>2x</Text>
@@ -105,33 +107,47 @@ const Ads = () => {
         );
     };
 
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#0000ff" />
-            </View>
-        );
-    }
-
-    if (error) {
-        return (
-            <View style={styles.errorContainer}>
-                <Text>Error: {error.message}</Text>
-            </View>
-        );
-    }
-
     return (
-        <FlatList
-            data={playerItems}
-            renderItem={renderProductItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.flatListContentContainer}
-        />
+        <View style={styles.container}>
+            {loading && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
+            )}
+            {error ? (
+                <View style={styles.errorContainer}>
+                    <Text>Error: {error.message}</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={playerItems}
+                    renderItem={renderProductItem}
+                    keyExtractor={(item) => item.id}
+                    ListHeaderComponent={<Ads2 />}
+                    ListFooterComponent={
+                        <View>
+                            <AGyro2 />
+                            <Gyro2 />
+                        </View>
+                    }
+                    contentContainerStyle={styles.flatListContentContainer}
+                />
+            )}
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1,
+    },
     achievementContainer: {
         flex: 1,
     },
@@ -149,11 +165,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: hp('1%'),
-    },
-    achievementHeading: {
-        fontSize: wp('5%'),
-        fontWeight: 'bold',
-        color: 'black',
     },
     topLeftText: {
         fontSize: wp('5%'),
@@ -179,26 +190,18 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: wp('4%'),
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    scrollViewContentContainer: {
+    flatListContentContainer: {
         flexGrow: 1,
         paddingVertical: hp('1%'),
         paddingHorizontal: wp('2%'),
     },
-    flatListContentContainer: {
-        flexGrow: 1,
-    },
     heading: {
-        fontSize: wp('6%'),
+        fontSize: wp('5%'),
         color: 'black',
         textAlign: 'center',
         fontWeight: 'bold',
@@ -206,7 +209,7 @@ const styles = StyleSheet.create({
         marginBottom: hp('1%'),
         paddingVertical: hp('0.5%'),
         borderRadius: wp('2%'),
-    }
+    },
 });
 
-export default Ads;
+export default Sentivity2;

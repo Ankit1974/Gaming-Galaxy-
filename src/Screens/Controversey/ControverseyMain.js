@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, ActivityIndicator, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, FlatList, Image, ActivityIndicator, StyleSheet, TouchableOpacity, Linking, RefreshControl } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import Share from 'react-native-share';
+import RNFS from 'react-native-fs';
 
 const PAGE_SIZE = 1; // Number of items to fetch per page
 
@@ -12,21 +14,21 @@ const ControverseyMain = () => {
     const [lastDoc, setLastDoc] = useState(null);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
-    const fetchData = async (loadMore = false) => {
+    const fetchData = async (loadMore = false, refresh = false) => {
         if (loadMore && loadingMore) return; // Prevent multiple fetches
-        if (!loadMore) setLoading(true); // Only set loading for initial load
+        if (!loadMore && !refresh) setLoading(true); // Only set loading for initial load
 
         try {
-            console.log('Fetching data...', loadMore ? 'Loading more' : 'Initial load');
-            const trandingRef = firestore().collection("Controversey").limit(PAGE_SIZE);
-            let query = trandingRef;
+            console.log('Fetching data...', loadMore ? 'Loading more' : (refresh ? 'Refreshing' : 'Initial load'));
+            let trandingRef = firestore().collection("Controversey").orderBy("Date", "desc").limit(PAGE_SIZE);
 
             if (loadMore && lastDoc) {
-                query = query.startAfter(lastDoc);
+                trandingRef = trandingRef.startAfter(lastDoc);
             }
 
-            const trandingSnapshot = await query.get();
+            const trandingSnapshot = await trandingRef.get();
             console.log('Snapshot size:', trandingSnapshot.size);
 
             if (!trandingSnapshot.empty) {
@@ -64,6 +66,7 @@ const ControverseyMain = () => {
         } finally {
             setLoading(false);
             setLoadingMore(false);
+            setRefreshing(false);
         }
     };
 
@@ -75,20 +78,53 @@ const ControverseyMain = () => {
         Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
     };
 
+    const handleShare = async (item) => {
+        try {
+            // Download the image to a temporary file
+            const fileName = `${item.id}.jpg`; // Unique file name based on item ID
+            const filePath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+
+            // Download image
+            await RNFS.downloadFile({
+                fromUrl: item.imageUrl,
+                toFile: filePath,
+            }).promise;
+
+            // Share the image along with headline and additional text
+            const shareOptions = {
+                title: item.headLine,
+                message: `${item.headLine}\n\nTo read more, download the app.`,
+                url: `file://${filePath}`, // Share the local file
+            };
+
+            await Share.open(shareOptions);
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
+    };
+
     const renderProductItem = ({ item }) => {
         return (
             <View style={styles.card}>
-                <Image
-                    source={{ uri: item.imageUrl }}
-                    style={styles.cardImage}
-                    resizeMode="contain"
-                    onError={() => console.log(`Image failed to load for item: ${item.id}`)}
-                />
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: item.imageUrl }}
+                        style={styles.cardImage}
+                        resizeMode="cover"
+                        onError={() => console.log(`Image failed to load for item: ${item.id}`)}
+                    />
+                    <Text style={styles.tag}>GG+</Text>
+                </View>
                 <Text style={styles.headline}>{item.headLine}</Text>
                 <Text style={styles.description}>{item.description}</Text>
-                <TouchableOpacity onPress={() => handleReadMore(item.url)}>
-                    <Text style={styles.readMore}>Source</Text>
-                </TouchableOpacity>
+                <View style={styles.actionsContainer}>
+                    <TouchableOpacity onPress={() => handleReadMore(item.url)}>
+                        <Text style={styles.readMore}>Source</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleShare(item)}>
+                        <Text style={styles.share}>Share</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         );
     };
@@ -122,6 +158,16 @@ const ControverseyMain = () => {
             }}
             onEndReachedThreshold={0.5} // Trigger when scrolled 50% from the bottom
             ListFooterComponent={loadingMore && <ActivityIndicator size="small" color="#0000ff" />}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={() => {
+                        setRefreshing(true);
+                        setLastDoc(null); // Reset last document for fresh data
+                        fetchData(false, true); // Fetch data for refresh
+                    }}
+                />
+            }
         />
     );
 };
@@ -131,17 +177,19 @@ const styles = StyleSheet.create({
         marginVertical: hp('1%'),
         backgroundColor: '#fff',
         elevation: 7,
-        width: wp('95%'),
-        minHeight: hp('30%'),
-        paddingBottom: hp('1%'),
-        borderRadius: wp('5%'),
+        width: wp('90%'),
+        borderRadius: wp('4%'),
         alignSelf: 'center',
+        overflow: 'hidden',
+    },
+    imageContainer: {
+        position: 'relative',
+        width: '100%',
+        height: hp('25%'),
     },
     cardImage: {
         width: '100%',
-        height: hp('25%'),
-        borderTopLeftRadius: wp('2%'),
-        borderTopRightRadius: wp('2%'),
+        height: '100%',
     },
     headline: {
         color: 'black',
@@ -150,14 +198,16 @@ const styles = StyleSheet.create({
         marginLeft: wp('3%'),
         marginTop: hp('1%'),
         flexShrink: 1,
+        zIndex: 1, // Ensure it's above other elements
     },
     description: {
         marginTop: hp('1%'),
-        color: 'gray',
+        color: '#666',
         fontSize: wp('4%'),
-        fontWeight: 'bold',
         marginHorizontal: wp('3%'),
         textAlign: 'left',
+        fontFamily: 'Roboto',
+        lineHeight: 26, // Increased line height
         flexShrink: 1,
     },
     readMore: {
@@ -165,8 +215,22 @@ const styles = StyleSheet.create({
         color: 'blue',
         fontSize: wp('4%'),
         fontWeight: 'bold',
+        textAlign: 'left',
+        marginRight: wp('3%'),
+        marginLeft: wp('3%')
+    },
+    share: {
+        marginTop: hp('1%'),
+        color: 'blue',
+        fontSize: wp('4%'),
+        fontWeight: 'bold',
         textAlign: 'right',
         marginRight: wp('3%'),
+    },
+    actionsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: hp('1%'),
     },
     loadingContainer: {
         flex: 1,
@@ -180,6 +244,20 @@ const styles = StyleSheet.create({
     },
     flatListContentContainer: {
         paddingBottom: hp('1%'),
+    },
+    tag: {
+        color: 'white',
+        backgroundColor: 'green',
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        borderRadius: 15,
+        position: 'absolute',
+        left: 12,
+        bottom: -12, // Position at the bottom of the image
+    },
+    viewShot: {
+        backgroundColor: '#fff', // Set a background color that you want
+        flex: 1,
     },
 });
 

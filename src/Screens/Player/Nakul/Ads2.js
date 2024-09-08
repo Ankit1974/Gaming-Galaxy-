@@ -3,7 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet, ScrollView, Dimens
 import firestore from '@react-native-firebase/firestore';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const Ads = () => {
+const Ads2 = () => {
     const [playerItems, setPlayerItems] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -20,7 +20,7 @@ const Ads = () => {
                     const subcollectionSnapshot = await subcollectionRef.get();
 
                     for (const subDoc of subcollectionSnapshot.docs) {
-                        const sensitivityRef = subDoc.ref.collection('Sensitivity').doc('WKTLLAeo31LXmfORkpSo');
+                        const sensitivityRef = subDoc.ref.collection('Sensitivity').doc('x3ERcdMrImgdivFkwxGf');
                         const sensitivityDoc = await sensitivityRef.get();
 
                         if (sensitivityDoc.exists) {
@@ -60,24 +60,24 @@ const Ads = () => {
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Tpp</Text>
-                            <Text style={styles.detailText}>{achievement.Tpp}</Text>
+                            <Text style={styles.detailText}>{achievement.TPP}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Fpp</Text>
-                            <Text style={styles.detailText}>{achievement.Fpp}</Text>
+                            <Text style={styles.detailText}>{achievement.FPP2}</Text>
                         </View>
                         <Text style={styles.topLeftText}>Camera Sensitivity</Text>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Tpp</Text>
-                            <Text style={styles.detailText}>{achievement.TppNoScope}</Text>
+                            <Text style={styles.detailText}>{achievement.TPP2}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Fpp</Text>
-                            <Text style={styles.detailText}>{achievement.FppNoScope}</Text>
+                            <Text style={styles.detailText}>{achievement.FPP}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Red Dot/Holo</Text>
-                            <Text style={styles.detailText}>{achievement.RedDotHolo}</Text>
+                            <Text style={styles.detailText}>{achievement.REDDOOT}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>2x</Text>
@@ -209,4 +209,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Ads;
+export default Ads2;

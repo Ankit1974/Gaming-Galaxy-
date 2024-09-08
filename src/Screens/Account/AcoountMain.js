@@ -144,7 +144,7 @@ const AccountScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           {/* Conditionally Render Posting Section */}
-          {userEmail === 'Ggplusowners@gmail.com' &&  (
+          {userEmail === 'ankitraj4323@gmail.com' && (
             <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PostContentScreen')}>
               <Icon name="edit" size={24} color="black" style={styles.menuIcon} />
               <Text style={styles.menuText}>Posting</Text>

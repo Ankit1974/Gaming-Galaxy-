@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const Achievement1 = () => {
+const Control1 = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Coming Soon</Text>
@@ -24,5 +24,5 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Achievement1
+export default Control1
 ;

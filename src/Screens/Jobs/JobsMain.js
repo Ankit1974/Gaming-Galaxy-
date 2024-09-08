@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, ActivityIndicator, StyleSheet, Dimensions, TouchableOpacity, Linking } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 const { width, height } = Dimensions.get('window');
 const PAGE_SIZE = 5; // Number of items to fetch per page
@@ -89,7 +90,7 @@ const JobsMain = () => {
                     <Text style={styles.description}>{item.name}</Text>
                     <Text style={styles.description}>{item.time}</Text>
                     <TouchableOpacity onPress={() => handleReadMore(item.url)}>
-                        <Text style={styles.readMore}>Apply Here</Text>
+                        <Text style={styles.readMore}>Apply</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -155,17 +156,19 @@ const styles = StyleSheet.create({
     headline: {
         color: 'black',
         fontWeight: 'bold',
-        fontSize: 18,
+        fontSize: wp('4%'),
         marginBottom: 5,
     },
     description: {
         color: 'gray',
-        fontSize: 16,
+        //fontSize: 16,
+        fontSize: wp('4%'),
         marginBottom: 5,
     },
     readMore: {
         color: 'blue',
-        fontSize: 16,
+        //fontSize: 16,
+        fontSize: wp('4%'),
         fontWeight: 'bold',
     },
     loadingContainer: {

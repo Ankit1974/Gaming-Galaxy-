@@ -97,16 +97,17 @@ const styles = StyleSheet.create({
         width: (width - 5) / 3, // Adjust width for equal spacing
     },
     icon: {
-        width: 50,
-        height: 50,
-        marginBottom: 10,
+        width: 100,
+        height: 100,
+        //marginBottom: 10,
         borderRadius: 25,
-        backgroundColor: "pink",
+        //backgroundColor: "skyblue",
     },
     categoryText: {
-        fontSize: 14,
+        fontSize: 12.93,
         color: 'blue',
         textAlign: "center",
+        fontFamily: 'Poppins-SemiBold'
     },
 });
 

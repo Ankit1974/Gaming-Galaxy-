@@ -61,24 +61,24 @@ const Sentivity = () => {
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Tpp</Text>
-                            <Text style={styles.detailText}>{achievement.Tpp}</Text>
+                            <Text style={styles.detailText}>{achievement.TPP}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Fpp</Text>
-                            <Text style={styles.detailText}>{achievement.Fpp}</Text>
+                            <Text style={styles.detailText}>{achievement.FPP}</Text>
                         </View>
                         <Text style={styles.topLeftText}>Camera Sensitivity</Text>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Tpp No Scope</Text>
-                            <Text style={styles.detailText}>{achievement.Tpp2}</Text>
+                            <Text style={styles.detailText}>{achievement.TPPNO}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Fpp No Scope</Text>
-                            <Text style={styles.detailText}>{achievement.Fpp2}</Text>
+                            <Text style={styles.detailText}>{achievement.FPPNO}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>Red Dot/Holo</Text>
-                            <Text style={styles.detailText}>{achievement.RedDot}</Text>
+                            <Text style={styles.detailText}>{achievement.REDDOT}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.detailLabel}>2x</Text>
@@ -106,35 +106,46 @@ const Sentivity = () => {
         );
     };
 
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#0000ff" />
-            </View>
-        );
-    }
-
-    if (error) {
-        return (
-            <View style={styles.errorContainer}>
-                <Text>Error: {error.message}</Text>
-            </View>
-        );
-    }
-
     return (
-        <FlatList
-            data={playerItems}
-            renderItem={renderProductItem}
-            keyExtractor={(item) => item.id}
-            ListHeaderComponent={<Ads />}
-            ListFooterComponent={<Gyro />}
-            contentContainerStyle={styles.flatListContentContainer}
-        />
+        <View style={styles.container}>
+            {loading && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="#0000ff" />
+                </View>
+            )}
+            {error ? (
+                <View style={styles.errorContainer}>
+                    <Text>Error: {error.message}</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={playerItems}
+                    renderItem={renderProductItem}
+                    keyExtractor={(item) => item.id}
+                    ListHeaderComponent={<Ads/>}
+                    ListFooterComponent={
+                        <View>
+                            <Gyro/>
+                        </View>
+                    }
+                    contentContainerStyle={styles.flatListContentContainer}
+                />
+            )}
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1,
+    },
     achievementContainer: {
         flex: 1,
     },
@@ -152,11 +163,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: hp('1%'),
-    },
-    achievementHeading: {
-        fontSize: wp('5%'),
-        fontWeight: 'bold',
-        color: 'black',
     },
     topLeftText: {
         fontSize: wp('5%'),
@@ -182,11 +188,6 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: wp('4%'),
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
         marginBottom: hp('1%'),
         paddingVertical: hp('0.5%'),
         borderRadius: wp('2%'),
-    }
+    },
 });
 
 export default Sentivity;

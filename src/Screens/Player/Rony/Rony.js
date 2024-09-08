@@ -4,9 +4,9 @@ import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-const specificDocumentIds = ["z3jsQIaVQdYvjpBnBhQQ"]; // Replace with actual document IDs
+const specificDocumentIds = ["G4wwDak4Ierq0RTzFRdB"]; // Replace with actual document IDs
 
-const Jonathan = () => {
+const Rony = () => {
     const [breakfastItems, setBreakfastItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -85,10 +85,13 @@ const Jonathan = () => {
                 <Text style={styles.heading}>PAST TEAM</Text>
                 <View style={styles.cardContent}>
                     <Text style={styles.detailText}>
-                        <Text style={styles.detailLabel}>Team Entity</Text>
+                        <Text style={styles.detailLabel}>Team Mayavi</Text>
                     </Text>
                     <Text style={styles.detailText}>
-                        <Text style={styles.detailLabel}>Team TSM Entity</Text>
+                        <Text style={styles.detailLabel}>Team Global Esports</Text>
+                    </Text>
+                    <Text style={styles.detailText}>
+                        <Text style={styles.detailLabel}>Team Blind Esports</Text>
                     </Text>
                 </View>
             </View>
@@ -129,7 +132,7 @@ const styles = StyleSheet.create({
         borderRadius: wp('4%'),
         elevation: 7,
         width: wp('93%'),
-        height: hp('97%'),
+        height: hp('100%'),
         marginHorizontal: wp('2.6%'),
     },
     cardImage: {
@@ -182,4 +185,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Jonathan;
+export default Rony

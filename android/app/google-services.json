@@ -9,23 +9,10 @@
       "client_info": {
         "mobilesdk_app_id": "1:124050093835:android:60ed73bf7f45d639f7540e",
         "android_client_info": {
-          "package_name": "com.gaming"
+          "package_name": "com.ggpluse"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "124050093835-m1uabvsltl9bf4bnb0a5rhi3h8l0pmav.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.gaming",
-            "certificate_hash": "e0b78f575fca0baa9cb96d200677590b5ceded1c"
-          }
-        },
-        {
-          "client_id": "124050093835-h7malf6b8ejm1igu7kqm6pt85kltl9md.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyDJDDF3eBmZJ_yhnj4BI74xR2VfmZxdqmw"
@@ -33,12 +20,26 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "124050093835-h7malf6b8ejm1igu7kqm6pt85kltl9md.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124050093835:android:34d5fff320c225d0f7540e",
+        "android_client_info": {
+          "package_name": "com.ggpluse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJDDF3eBmZJ_yhnj4BI74xR2VfmZxdqmw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     }

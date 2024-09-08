@@ -93,10 +93,10 @@ const SignUpScreen = ({ navigation }) => {
           secureTextEntry={true}
         />
         <TouchableOpacity
-          style={styles.sendOTPButton}
+          style={styles.singupButton}
           onPress={handleSignup} // Changed to handleSignup for sign-up functionality
         >
-          <Text style={styles.sendOTPText}>Sign Up</Text>
+          <Text style={styles.singupText}>Sign Up</Text>
         </TouchableOpacity>
         <Text style={{ color: 'red', textAlign: 'center', marginTop: 10 }}>{message}</Text>
         <TouchableOpacity
@@ -105,7 +105,7 @@ const SignUpScreen = ({ navigation }) => {
             navigation.navigate('Login'); // Navigate to Login screen if already have an account
           }}
         >
-          <Text style={{ color: 'blue', textAlign: 'center', marginTop: 10 }}>Already have an account? Login</Text>
+          <Text style={{ color: 'white', textAlign: 'center', marginTop: 10 }}>Login</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -186,14 +186,14 @@ const styles = StyleSheet.create({
     color: 'white', // Text color to contrast with the dark background
     marginBottom: 10,
   },
-  sendOTPButton: {
+  singupButton: {
     backgroundColor: '#007bff', // Blue background for the button
     borderRadius: 5,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sendOTPText: {
+  singupText: {
     color: 'white', // White text color for the button text
     fontSize: 16,
     fontWeight: 'bold',
