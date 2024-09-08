@@ -39,4 +39,5 @@
 . News is updated regularly and presented in a visually engaging format, ensuring users are always in the loop with worldwide trends.
 
 
-  
+  ![1](https://github.com/user-attachments/assets/2addd774-eec7-4a5b-9e43-385b53236855)
+
